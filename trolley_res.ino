@@ -73,6 +73,7 @@ bool freq_sample_menu_select;
 bool count_rot_select;
 bool gps_en_select;
 bool print_disp_select;
+bool high_spd_select;
 bool count_by_time;
 bool menu_active;
 bool btnStateNext;
@@ -91,6 +92,7 @@ byte cnt_freq_sample;
 byte cnt_count_rot;
 byte cnt_gps_en;
 byte cnt_print_disp;
+byte cnt_high_spd;
 bool start;
 bool timeout;
 
@@ -105,6 +107,7 @@ char *main_menu[] = {
   "Число оборотов",
   "GPS активен   ",
   "Выв. на дисп. ",
+  "Высокоск. реж.",
   "Старт!        "
 };
 
@@ -133,19 +136,22 @@ char *count_rot_menu[] = {
 char *gps_en_menu[] = {
   "GPS скор. вкл.",
   "GPS скор. выкл",
-  "Выход"
+  "Выход         "
 };
 
 char *print_disp_menu[] = {
   "Вкл. печ. дисп",
   "Выкл.печ. дисп",
-  "Выход"
+  "Выход         "
 };
 
 char *high_spd_menu[] = {
-  "Вкл. печ. дисп",
-  "Выкл.печ. дисп",
-  "Выход"
+  "10 оборотов   ",
+  "20 оборотов   ",
+  "50 оборотов   ",
+  "100 оборотов  ",
+  "Выкл.высокоск.",
+  "Выход         "
 };
 
 iarduino_Position_BMX055 sensor_a(BMA);
@@ -202,6 +208,12 @@ void setup() {
   cnt_main = 0;
   cnt_sample_mode = 0;
   cnt_freq_sample = 0;
+  cnt_count_rot = 0;
+  cnt_gps_en = 0;
+  cnt_print_disp = 0;
+  cnt_high_spd = 0;
+  
+  cnt_freq_sample = 0;
   h_spd_cnt = 10;
   
   FREQ = HZ1;
@@ -219,6 +231,7 @@ void setup() {
   count_rot_select = false;
   gps_en_select = false;
   print_disp_select = false;
+  high_spd_select = false;
   flagNext = true;
   flagSelect = true;
   file_was_written = false;
@@ -247,7 +260,7 @@ void setup() {
 
   //current_time = "2021_09_07_20_20.csv";
   
-  prepare_to_start();
+  //prepare_to_start();
 }
 
 void loop() {
@@ -285,35 +298,17 @@ void loop() {
   {
     //if(start_writing)
     timeout = ((millis() - timer_end) > TIMEOUT)? true : false;
-    /*
-    Serial.print("millis() = ");
-    Serial.println(millis());
-    Serial.print("timer_end = ");
-    Serial.println(timer_end);
-
-    timer_d = millis() / 1000;
-    Serial.print("timer_d = ");
-    Serial.println(timer_d);
-    */
-    /*
-    Serial.print("timeout = ");
-    Serial.println(timeout);
-    Serial.print("millis() = ");
-    Serial.println(millis());
-    Serial.print("timer_end = ");
-    Serial.println(timer_end);
-    Serial.print("start_writing = ");
-    Serial.println(start_writing);
-    Serial.print("file_was_written = ");
-    Serial.println(file_was_written);
-    */
     if(start_writing & timeout & !file_was_written)
     { 
-      Serial.print("millis() = ");
-      Serial.println(millis());
-      Serial.print("timer_end = ");
-      Serial.println(timer_end);   
-      myFile.close();
+      myFile.print("millis() = ");
+      myFile.print(millis());
+      myFile.println(";");
+      
+      myFile.print("timer_end = ");
+      myFile.print(timer_end);
+      myFile.println(";");
+      
+      myFile.close();      
       file_was_written = true;
       print_finish();
       start_writing = false;
@@ -853,7 +848,7 @@ void prepare_to_start(){
 
 void print_main_menu(byte n){
   myOLED.clrScr();
-  for(byte i = 0; i<6; i++)
+  for(byte i = 0; i<7; i++)
   {
     if(i == n){
       myOLED.print(main_menu[i], 0, i);
@@ -935,6 +930,20 @@ void print_print_disp_menu(byte n){
   return;
 }
 
+void print_high_spd_menu(byte n){
+  myOLED.clrScr();
+  for(byte i = 0; i<6; i++)
+  {
+    if(i == n){
+      myOLED.print(high_spd_menu[i], 0, i);
+      myOLED.print("<<<", 90, i);
+    }
+    else
+      myOLED.print(high_spd_menu[i], 0, i);
+  }
+  return;
+}
+
 void print_new_params_accepted(){
   myOLED.clrScr();
   myOLED.print("Параметры установлены", 0, 0);
@@ -944,7 +953,7 @@ void print_new_params_accepted(){
 
 void push_next(){
   if(main_menu_select){
-    if(cnt_main < 5)
+    if(cnt_main < 6)
       cnt_main = cnt_main + 1;
     else
       cnt_main = 0;
@@ -985,6 +994,13 @@ void push_next(){
       cnt_print_disp = 0;
     print_print_disp_menu(cnt_print_disp);
   }
+  else if(high_spd_select){
+    if(cnt_high_spd < 5)
+      cnt_high_spd = cnt_high_spd + 1;
+    else
+      cnt_high_spd = 0;
+    print_high_spd_menu(cnt_high_spd);
+  }
   return;
 }
 
@@ -1016,6 +1032,11 @@ void push_select(){
       print_print_disp_menu(cnt_print_disp);
     }
     else if(cnt_main == 5){
+      main_menu_select = false;
+      high_spd_select = true;
+      print_high_spd_menu(cnt_high_spd);
+    }
+    else if(cnt_main == 6){
       main_menu_select = false;
       start = true;
       prepare_to_start();
@@ -1101,6 +1122,39 @@ void push_select(){
     print_disp_select = false;
     main_menu_select = true;
     print_main_menu(cnt_main);
+  }
+  else if(high_spd_select){
+    if(cnt_high_spd == 0){
+      h_spd_mode = true;//high speed mode is on
+      h_spd_cnt = 10;
+      print_new_params_accepted();
+    }
+    else if(cnt_high_spd == 1){
+      h_spd_mode = true;//high speed mode is on
+      h_spd_cnt = 20;
+      print_new_params_accepted();
+    }
+    else if(cnt_high_spd == 2){
+      h_spd_mode = true;//high speed mode is on
+      h_spd_cnt = 50;
+      print_new_params_accepted();
+    }
+    else if(cnt_high_spd == 3){
+      h_spd_mode = true;//high speed mode is on
+      h_spd_cnt = 100;
+      print_new_params_accepted();
+    }
+    else if(cnt_high_spd == 4){
+      h_spd_mode = false;//high speed mode is off
+      print_new_params_accepted();
+    }
+    //else if(cnt_high_spd == 5){
+    //  h_spd_mode = false;//high speed mode is off
+    //  print_new_params_accepted();
+    //}
+    high_spd_select = false;
+    main_menu_select = true;
+    print_main_menu(cnt_main);    
   }
   return;
 }
