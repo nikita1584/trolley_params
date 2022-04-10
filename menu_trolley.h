@@ -330,6 +330,7 @@ void push_select(){
   else if(sample_mode_menu_select){
     if(cnt_sample_mode == 0){
       count_by_time = true;//отметки по времени
+      h_spd_mode = false;
       print_new_params_accepted();
     }
     else if(cnt_sample_mode == 1){
@@ -344,18 +345,22 @@ void push_select(){
     if(cnt_freq_sample == 0){
       FREQ = HZ1;//"1 раз в сек   ",
       print_new_params_accepted();
+      h_spd_mode = false;
     }
     else if(cnt_freq_sample == 1){
       FREQ = HZ2;//"2 раза в сек  ",
       print_new_params_accepted();
+      h_spd_mode = false;
     }
     else if(cnt_freq_sample == 2){
       FREQ = HZ4;//"4 раза в сек  ",
       print_new_params_accepted();
+      h_spd_mode = false;
     }
     else if(cnt_freq_sample == 3){
       FREQ = HZ10;//"10 раз в сек  ",
       print_new_params_accepted();
+      h_spd_mode = false;
     }
     freq_sample_menu_select = false;
     main_menu_select = true;

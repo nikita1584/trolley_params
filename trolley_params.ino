@@ -59,7 +59,6 @@ uint32_t btnTimerNext;
 bool flagSelect = true;
 uint32_t btnTimerSelect;
 
-
 iarduino_Position_BMX055 sensor_a(BMA);
 iarduino_Pressure_BMP sensor_p;
 iarduino_I2C_SHT sht;
@@ -122,9 +121,9 @@ void setup() {
   h_spd_cnt = 10;
   
   FREQ = HZ1;
-  ROTATION_BOUND = 20;
-  GPS_SPEED = false;
-  GPS_TIME = false;
+  ROTATION_BOUND = 1;
+  GPS_SPEED = true;
+  GPS_TIME = true;
   PRINT_PARAMS_EN = false;
   h_spd_mode = false;
   count_by_time = false;
@@ -625,7 +624,8 @@ void gps_setup(){
   //SettingsGPS.composition(NMEA_ZDA, NMEA_VTG);
   //SettingsGPS.updaterate(10);//update 10 time a second
   /*
-   * //gps debug
+  //gps debug
+  //it's work fine!
   delay(10000);
 
   SettingsGPS.reset(GPS_HOT_START);
