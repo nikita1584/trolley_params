@@ -122,8 +122,8 @@ void setup() {
   
   FREQ = HZ1;
   ROTATION_BOUND = 1;
-  GPS_SPEED = true;
-  GPS_TIME = true;
+  GPS_SPEED = false;
+  GPS_TIME = false;
   PRINT_PARAMS_EN = false;
   h_spd_mode = false;
   count_by_time = false;
@@ -204,6 +204,7 @@ void loop() {
     timeout = ((millis() - timer_end) > TIMEOUT)? true : false;
     if(start_writing & timeout & !file_was_written)
     { 
+      /*
       myFile.print("millis() = ");
       myFile.print(millis());
       myFile.println(";");
@@ -211,6 +212,7 @@ void loop() {
       myFile.print("timer_end = ");
       myFile.print(timer_end);
       myFile.println(";");
+      */
       
       myFile.close();      
       file_was_written = true;
@@ -237,18 +239,13 @@ void loop() {
     }
     else if(count_by_time & start_writing)//count by time
     {
-      //Serial.println("count by time");
       if(millis() - timer >= FREQ)//F
       {
-        //Serial.println("count by time");
         timer_begin = millis();
         read_sensors();
-        mul_cnt();
-        //write_to_mas(i);
         write_sample();
         print_params();
         timer = millis();
-        //sample_mas[i].delta = timer - timer_begin;
         i++;
         counter = 0;
         //timer_end = millis();
@@ -256,19 +253,9 @@ void loop() {
     }
     else if(!count_by_time & (counter >= ROTATION_BOUND) & start_writing)//count by rotations
     {
-      //Serial.println("count by rotations");
       timer_begin = millis();
-      
-      //write_to_mas(i);
-      //if((i % 10) == 0){
-        //read_sensors();
-        //mul_cnt();
-        
-        print_params();
-      //}
+      print_params();
       write_sample();
-      //timer = millis();
-      //sample_mas[i].delta = timer - timer_begin;
       i++;
       counter = 0;
       timer_end = millis();
@@ -278,7 +265,6 @@ void loop() {
 }
 
 void read_sensors(){
-  //Serial.println("4444");
   timer_begin = timer;//millis();
   sensor_a.read(BMA_DEG);
   sensor_p.read(1);
@@ -298,76 +284,9 @@ void read_sensors(){
   }
   */
   
-  ////Serial.print("Скорость: ");
-  ////Serial.print(gps.speed);
-  ////Serial.print("км/ч. ");
-  
   return;
 }
 
-
-/*
-bool write_to_file(){
-  if(myFile)
-  {
-    myFile.print("timer");
-    myFile.print(";");
-    myFile.print("timer delta");
-    myFile.print(";");
-    myFile.print("counter");
-    myFile.print(";");
-    myFile.print("altitude");
-    myFile.print(";");
-    //pressure
-    myFile.print("temp");
-    myFile.print(";");
-    myFile.print("humidity");//sht.getTem()
-    myFile.print(";");
-    myFile.print("axis_x");
-    myFile.print(";");
-    myFile.print("accel_x");
-    myFile.print(";");
-    myFile.print("voltage");
-    myFile.print(";");
-    myFile.print("current");
-    myFile.print(";");
-    myFile.println("speed");
-    for(i = 0; i < MAS_SIZE; i++)
-    {
-      myFile.print(sample_mas[i].timer);
-      myFile.print(";");
-      myFile.print(sample_mas[i].delta);
-      myFile.print(";");
-      myFile.print(sample_mas[i].counter);
-      myFile.print(";");
-      myFile.print(sample_mas[i].altitude);
-      myFile.print(";");
-      //pressure
-      myFile.print(sample_mas[i].temperature);
-      myFile.print(";");
-      myFile.print(sample_mas[i].hum);//sht.getTem()
-      myFile.print(";");
-      myFile.print(sample_mas[i].axis_x);
-      myFile.print(";");
-      myFile.print(sample_mas[i].accel_x);
-      myFile.print(";");
-      myFile.print(sample_mas[i].voltage);
-      myFile.print(";");
-      myFile.print(sample_mas[i].current);
-      myFile.print(";");
-      myFile.println(sample_mas[i].speed);
-    }
-    myFile.close();
-    //Serial.println("File arduino.csv was written");
-    return true;
-  }
-  else
-  {
-    //Serial.println("Error opening file arduino.csv");
-    return false;
-  }
-}
-*/
 bool write_header()
 {
   //Serial.println("write header");
@@ -438,42 +357,6 @@ bool write_header()
 
 void write_sample()
 {
-  //Serial.println("5555");
-  /*
-    read_sensors();
-    myFile.print(timer_begin);
-    myFile.print(";");
-    myFile.print(gps_speed);
-    myFile.print(";");
-    myFile.print(counter);
-    myFile.print(";");
-    myFile.print(sensor_p.altitude);
-    myFile.print(";");
-    //pressure
-    myFile.print(sensor_p.temperature);
-    myFile.print(";");
-    myFile.print(sht.getHum());//sht.getTem()
-    myFile.print(";");
-    myFile.print(sensor_a.axisY);//axisX
-    myFile.print(";");
-    sensor_a.read(BMA_G);//BMA_M_S
-    myFile.print(sensor_a.axisY);//axisX
-    myFile.print(";");
-    myFile.print(voltage);
-    myFile.print(";");
-    myFile.print(current);
-    myFile.print(";");
-    timer = millis();
-    //timer_delta = timer - timer_last;
-    myFile.println(timer - timer_last);
-  */
-    
-    //myFile.print(";");
-    
-    //myFile.println(rpm);
-    //timer_last = timer;
-    
-  
   if(!h_spd_mode | (h_spd_mode & ((i % h_spd_cnt) == 0)))
   {
     read_sensors();
@@ -521,22 +404,6 @@ void write_sample()
   }
   timer_last = timer;
 }
-/*
-void write_to_mas(int j)
-{
-  sample_mas[j].timer = timer;
-  sample_mas[j].counter = counter * 60;
-  sample_mas[j].altitude = sensor_p.altitude;
-  sample_mas[j].temperature = sensor_p.temperature;
-  sample_mas[j].hum = sht.getHum();
-  sample_mas[j].axis_x = sensor_a.axisX;
-  sensor_a.read(BMA_G);//BMA_M_S
-  sample_mas[j].accel_x = sensor_a.axisX;
-  sample_mas[j].voltage = voltage;
-  sample_mas[j].current = current;
-  sample_mas[j].speed = speed;
-}
-*/
 
 void gps_setup(){
   byte sat_cnt = 0;
@@ -657,16 +524,6 @@ void gps_setup(){
   return;
 }
 
-void mul_cnt(){
-  if(FREQ == HZ2)
-    counter = counter * 2;
-  else if(FREQ == HZ4)
-    counter = counter * 4;
-  else if(FREQ == HZ10)
-    counter = counter * 10;
-  return;
-}
-
 void prepare_to_start(){
   char filename[current_time.length()+1];
   myOLED.clrScr();
@@ -697,7 +554,6 @@ void prepare_to_start(){
 }
 
 void print_params(){
-  //Serial.println("print params");
   if(PRINT_PARAMS_EN){
     myOLED.clrScr();
     //myOLED.setCoding(TXT_UTF8);
@@ -725,11 +581,5 @@ void inc_cnt(){
   counter++;
   timer_end = millis();
   
-  /*
-  Serial.print("---rotation--- time = ");
-  Serial.print(millis());
-  Serial.print(" counter = ");
-  Serial.println(counter);
-  */
   return;
 }
