@@ -268,7 +268,7 @@ void read_sensors(){
   timer_begin = timer;//millis();
   sensor_a.read(BMA_DEG);
   sensor_p.read(1);
-  current = dataI.readCurrentAC();
+  current = dataI.readCurrentDC();
   voltage = analogRead(VOLT_PIN) * VREF * V_COEF * ((DIV_R1 + DIV_R2) / DIV_R2) / 1024;
 
   if(GPS_SPEED)
