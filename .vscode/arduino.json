@@ -1,0 +1,5 @@
+{
+    "board": "Trema.RU:avr:PiranhaULTRA",
+    "sketch": "trolley_params.ino",
+    "port": "COM3"
+}
