@@ -12,7 +12,7 @@
 // TIMER_CNT defined in milliseconds
 #define AUTOSTOP true
 #define TIMEOUT 4000
-#define DEBUG_LOG
+// #define DEBUG_LOG
 
 #define IND_PIN 2
 #define AMP_PIN A0
@@ -30,8 +30,8 @@ const int wheel_size = 25;
 #define DIV_R2 1176
 
 #define DELAY_RD 65
-//#define A4 S0
-//#define A5 S1
+// #define A4 S0
+// #define A5 S1
 
 // i2c: sda - a4, scl - a5
 // spi: mosi - 11, miso - 12, sck - 13, ss - 10
@@ -43,12 +43,13 @@ const int wheel_size = 25;
 //  1  0 - GPS
 
 volatile unsigned long counter;
-volatile unsigned long counter_inc_time;
 volatile unsigned long timer;
 volatile unsigned long timer_begin;
 volatile unsigned long timer_end;
 volatile unsigned long timer_delta;
 volatile unsigned long timer_last;
+volatile unsigned long timer_now;
+volatile unsigned long dif;
 volatile unsigned long timeout_delta;
 volatile unsigned long rpm;
 
@@ -188,8 +189,12 @@ void loop()
   }
   else
   {
-    // if(start_writing)
-    timeout = ((millis() - timer_end) > TIMEOUT) ? true : false;
+    timer_now = millis();
+    if (timer_now > timer_end)
+      dif = timer_now - timer_end;
+    else
+      dif = timer_end - timer_now;
+    timeout = (dif > (unsigned long)TIMEOUT) ? true : false;
     if (start_writing & timeout & !file_was_written)
     {
       myFile.close();
